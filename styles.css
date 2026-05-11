@@ -253,7 +253,14 @@ body {
   background: #000;
 }
 
-.ar-stage a-scene {
+.ar-scene-root {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ar-scene-root a-scene {
   width: 100%;
   height: 100%;
 }

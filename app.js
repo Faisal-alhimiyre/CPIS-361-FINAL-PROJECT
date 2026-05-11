@@ -3,12 +3,17 @@
 
   const landing = document.getElementById("app-landing");
   const arStage = document.getElementById("ar-stage");
+  const arSceneRoot = document.getElementById("ar-scene-root");
+  const arSceneTemplate = document.getElementById("ar-scene-template");
   const form = document.getElementById("decoy-form");
   const formError = document.getElementById("form-error");
   const colorInput = document.getElementById("accent-color");
   const fontSelect = document.getElementById("arabic-font");
-  const plane = document.getElementById("message-plane");
   const btnBack = document.getElementById("btn-back");
+
+  function getMessagePlane() {
+    return document.getElementById("message-plane");
+  }
 
   function showError(text) {
     formError.textContent = text;
@@ -54,6 +59,7 @@
   }
 
   function applyPlaneTexture(dataUrl) {
+    const plane = getMessagePlane();
     if (!plane) return;
     plane.setAttribute("material", {
       src: dataUrl,
@@ -74,26 +80,61 @@
     }
   }
 
+  function mountArScene(onReady) {
+    if (!arSceneRoot || !arSceneTemplate) {
+      return;
+    }
+    arSceneRoot.innerHTML = "";
+    arSceneRoot.appendChild(arSceneTemplate.content.cloneNode(true));
+    const scene = arSceneRoot.querySelector("a-scene");
+    if (!scene) {
+      return;
+    }
+    function finish() {
+      onReady(scene);
+    }
+    if (scene.hasLoaded) {
+      finish();
+      return;
+    }
+    scene.addEventListener("loaded", finish, { once: true });
+  }
+
+  function resizeScene(scene) {
+    if (!scene) return;
+    window.setTimeout(function () {
+      if (typeof scene.resize === "function") {
+        scene.resize();
+      }
+      window.dispatchEvent(new Event("resize"));
+    }, 50);
+  }
+
   async function enterAr() {
     const color = colorInput.value;
     await ensureFontsLoaded();
     const dataUrl = buildTextTexture(color, getFontStack());
-    applyPlaneTexture(dataUrl);
 
     landing.hidden = true;
     landing.setAttribute("aria-hidden", "true");
     arStage.hidden = false;
     arStage.setAttribute("aria-hidden", "false");
 
-    window.setTimeout(function () {
-      const scene = document.querySelector("a-scene");
-      if (scene && scene.resize) {
-        scene.resize();
-      }
-    }, 120);
+    /* Let the stage leave display:none before AR.js measures the viewport and opens the camera. */
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        mountArScene(function (scene) {
+          applyPlaneTexture(dataUrl);
+          resizeScene(scene);
+        });
+      });
+    });
   }
 
   function exitAr() {
+    if (arSceneRoot) {
+      arSceneRoot.innerHTML = "";
+    }
     arStage.hidden = true;
     arStage.setAttribute("aria-hidden", "true");
     landing.hidden = false;

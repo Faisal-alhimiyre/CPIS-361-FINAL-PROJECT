@@ -120,6 +120,11 @@
         <p>وجّه الكاميرا نحو <strong>علامة Hiro</strong> حتى تثبت المعاينة.</p>
         <button type="button" id="btn-back" class="btn ghost">العودة للنموذج</button>
       </div>
+      <div id="ar-scene-root" class="ar-scene-root"></div>
+    </div>
+
+    <!-- Scene is mounted only after submit so WebRTC sees a visible, sized surface (hidden = display:none breaks the camera). -->
+    <template id="ar-scene-template">
       <a-scene
         embedded
         vr-mode-ui="enabled: false"
@@ -139,7 +144,7 @@
         </a-marker>
         <a-entity camera></a-entity>
       </a-scene>
-    </div>
+    </template>
 
     <script src="app.js"></script>
   </body>
