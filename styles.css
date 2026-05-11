@@ -274,8 +274,22 @@ body.is-ar-open {
   background: #000;
 }
 
+/* With videoTexture:false, AR.js keeps a real <video> in the DOM — keep it full-bleed under the transparent WebGL canvas. */
+.ar-scene-root video {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .ar-scene-root a-scene {
   display: block;
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   background: transparent !important;
@@ -283,6 +297,8 @@ body.is-ar-open {
 
 .ar-scene-root a-scene .a-canvas {
   display: block;
+  position: relative;
+  z-index: 1;
   width: 100% !important;
   height: 100% !important;
 }

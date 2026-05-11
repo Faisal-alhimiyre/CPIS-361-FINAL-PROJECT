@@ -92,7 +92,21 @@
       src: dataUrl,
       transparent: true,
       shader: "flat",
+      side: "double",
     });
+  }
+
+  function scheduleTextureApply(dataUrl, scene) {
+    function apply() {
+      applyPlaneTexture(dataUrl);
+    }
+    apply();
+    window.requestAnimationFrame(apply);
+    window.setTimeout(apply, 80);
+    window.setTimeout(apply, 400);
+    if (scene) {
+      scene.addEventListener("renderstart", apply, { once: true });
+    }
   }
 
   async function ensureFontsLoaded() {
@@ -177,8 +191,8 @@
     window.requestAnimationFrame(function () {
       window.requestAnimationFrame(function () {
         mountArScene(function (scene) {
-          applyPlaneTexture(dataUrl);
           resizeScene(scene);
+          scheduleTextureApply(dataUrl, scene);
         });
       });
     });
