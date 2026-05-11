@@ -135,11 +135,12 @@
 
     <!-- Scene is mounted only after submit so WebRTC sees a visible, sized surface (hidden = display:none breaks the camera). -->
     <template id="ar-scene-template">
+      <!-- Avoid videoTexture:true with A-Frame 1.6: can crash reading changeMatrixMode (AR.js / Three r164). -->
       <a-scene
         embedded
         vr-mode-ui="enabled: false"
         renderer="alpha: true; antialias: true; colorManagement: false; logarithmicDepthBuffer: true; precision: medium"
-        arjs="trackingMethod: best; sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+        arjs="trackingMethod: best; sourceType: webcam; videoTexture: false; debugUIEnabled: false;"
       >
         <a-marker id="hiro-marker" preset="hiro">
           <a-entity id="text-holder" position="0 0.15 0">
