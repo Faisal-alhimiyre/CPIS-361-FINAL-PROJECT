@@ -99,11 +99,13 @@
           url="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/data/data/patt.hiro"
           emitevents="true"
         >
+          <!-- Default plane is vertical in marker space; -90 X lays it flat on the Hiro sheet (readable, not sideways). -->
           <a-plane
             id="message-plane"
-            width="1.2"
-            height="0.35"
-            position="0 0.1 0"
+            width="2.1"
+            height="0.58"
+            position="0 0.02 0"
+            rotation="-90 0 0"
             material="shader: flat; transparent: true; side: double"
           ></a-plane>
         </a-marker>
@@ -131,22 +133,35 @@
         }
 
         function buildTex() {
-          var w = 2048;
-          var h = 512;
+          var w = 2816;
+          var h = 768;
           var c = document.createElement("canvas");
           c.width = w;
           c.height = h;
           var ctx = c.getContext("2d");
-          ctx.fillStyle = "rgba(0,0,0,0.45)";
+          if (ctx.imageSmoothingEnabled !== undefined) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+          }
+          ctx.fillStyle = "rgba(0,0,0,0.78)";
           ctx.fillRect(0, 0, w, h);
           ctx.direction = "rtl";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
+          var cx = w / 2;
+          var cy = h / 2 + 6;
+          ctx.font = "bold 220px " + fontStack();
+          ctx.lineJoin = "round";
+          ctx.miterLimit = 2;
+          ctx.lineWidth = 14;
+          ctx.strokeStyle = "rgba(0,0,0,0.92)";
+          ctx.strokeText(MESSAGE, cx, cy);
+          ctx.shadowColor = "rgba(0,0,0,0.65)";
+          ctx.shadowBlur = 22;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 4;
           ctx.fillStyle = hexColor();
-          ctx.font = "bold 140px " + fontStack();
-          ctx.shadowColor = "rgba(0,0,0,0.55)";
-          ctx.shadowBlur = 18;
-          ctx.fillText(MESSAGE, w / 2, h / 2 + 8);
+          ctx.fillText(MESSAGE, cx, cy);
           return c.toDataURL("image/png");
         }
 
