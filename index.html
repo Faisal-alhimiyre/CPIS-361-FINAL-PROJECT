@@ -13,7 +13,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
-    <!-- AR runs only inside ar-view.html (iframe). Do not load A-Frame here — wrong iframe URL was loading 404 while console showed parent libs. -->
+    <!-- After submit, the site jumps to ar-view.html (full page). That is how AR.js marker demos are meant to run. -->
   </head>
   <body>
     <div id="app-landing" class="landing" aria-hidden="false">
@@ -103,8 +103,7 @@
           <div class="actions span-2">
             <button type="submit" class="btn primary">توليد المعاينة ثلاثية الأبعاد</button>
             <p class="fine-print">
-              بياناتك تُعالج محليًا في هذا المتصفح لإنشاء المعاينة فقط. لا يوجد رفع إلى
-              خادم في هذا النموذج التجريبي.
+              بعد «توليد المعاينة» ستنتقل إلى صفحة الكاميرا (نفس المجلد: ar-view.html). بياناتك تُعالج محليًا فقط.
             </p>
           </div>
         </form>
@@ -113,25 +112,6 @@
       <footer class="site-footer">
         <span>© بروبيلد — نموذج تجريبي للعرض</span>
       </footer>
-    </div>
-
-    <!-- LTR: global RTL can confuse embedded WebGL/canvas sizing in some browsers. -->
-    <div id="ar-stage" class="ar-stage" hidden aria-hidden="true" dir="ltr">
-      <div id="ar-scene-root" class="ar-scene-root"></div>
-      <div class="ar-hud">
-        <div class="ar-hud-copy">
-          <p>وجّه الكاميرا نحو <strong>علامة Hiro</strong> حتى تثبت المعاينة.</p>
-          <p class="ar-hud-hint">
-            إذا رأيت شريط «أعد تحميل الصفحة» في كروم بعد السماح بالكاميرا، اضغطه أو استخدم «تحديث الصفحة» هنا. إذا بقي
-            الشاشة سوداء، جرّب «فتح في تبويب جديد».
-          </p>
-        </div>
-        <div class="ar-hud-actions">
-          <button type="button" id="btn-ar-tab" class="btn ghost">فتح في تبويب جديد</button>
-          <button type="button" id="btn-reload-ar" class="btn ghost">تحديث الصفحة</button>
-          <button type="button" id="btn-back" class="btn ghost">العودة للنموذج</button>
-        </div>
-      </div>
     </div>
 
     <script src="app.js"></script>
