@@ -118,11 +118,19 @@
 
     <!-- LTR: global RTL can confuse embedded WebGL/canvas sizing in some browsers. -->
     <div id="ar-stage" class="ar-stage" hidden aria-hidden="true" dir="ltr">
-      <div class="ar-hud">
-        <p>وجّه الكاميرا نحو <strong>علامة Hiro</strong> حتى تثبت المعاينة.</p>
-        <button type="button" id="btn-back" class="btn ghost">العودة للنموذج</button>
-      </div>
       <div id="ar-scene-root" class="ar-scene-root"></div>
+      <div class="ar-hud">
+        <div class="ar-hud-copy">
+          <p>وجّه الكاميرا نحو <strong>علامة Hiro</strong> حتى تثبت المعاينة.</p>
+          <p class="ar-hud-hint">
+            إذا رأيت شريط «أعد تحميل الصفحة» في كروم بعد السماح بالكاميرا، اضغطه أو استخدم «تحديث الصفحة» هنا.
+          </p>
+        </div>
+        <div class="ar-hud-actions">
+          <button type="button" id="btn-reload-ar" class="btn ghost">تحديث الصفحة</button>
+          <button type="button" id="btn-back" class="btn ghost">العودة للنموذج</button>
+        </div>
+      </div>
     </div>
 
     <!-- Scene is mounted only after submit so WebRTC sees a visible, sized surface (hidden = display:none breaks the camera). -->
@@ -130,8 +138,8 @@
       <a-scene
         embedded
         vr-mode-ui="enabled: false"
-        renderer="logarithmicDepthBuffer: true; precision: medium"
-        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+        renderer="alpha: true; antialias: true; colorManagement: false; logarithmicDepthBuffer: true; precision: medium"
+        arjs="trackingMethod: best; sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
       >
         <a-marker id="hiro-marker" preset="hiro">
           <a-entity id="text-holder" position="0 0.15 0">

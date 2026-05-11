@@ -10,6 +10,7 @@
   const colorInput = document.getElementById("accent-color");
   const fontSelect = document.getElementById("arabic-font");
   const btnBack = document.getElementById("btn-back");
+  const btnReloadAr = document.getElementById("btn-reload-ar");
 
   let windowResizeHandler = null;
 
@@ -215,6 +216,12 @@
 
   if (btnBack) {
     btnBack.addEventListener("click", exitAr);
+  }
+
+  if (btnReloadAr) {
+    btnReloadAr.addEventListener("click", function () {
+      window.location.reload();
+    });
   }
 
   colorInput.addEventListener("input", function () {

@@ -254,12 +254,12 @@ body.is-ar-open {
   border-top: 1px solid var(--border);
 }
 
-/* AR */
+/* AR — scene first (below), HUD above; no opaque black layer hiding the camera. */
 .ar-stage {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: #000;
+  background: transparent;
   overflow: hidden;
   max-width: 100vw;
 }
@@ -270,12 +270,15 @@ body.is-ar-open {
   top: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
+  background: #000;
 }
 
 .ar-scene-root a-scene {
   display: block;
   width: 100%;
   height: 100%;
+  background: transparent !important;
 }
 
 .ar-scene-root a-scene .a-canvas {
@@ -286,20 +289,33 @@ body.is-ar-open {
 
 .ar-hud {
   position: absolute;
-  z-index: 60;
+  z-index: 2;
   left: 0;
   right: 0;
   top: 0;
   padding: 0.75rem 1rem;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.2) 55%, transparent);
   color: #fff;
   font-size: 0.9rem;
   pointer-events: none;
+}
+
+.ar-hud-copy {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.ar-hud-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  pointer-events: auto;
 }
 
 .ar-hud .btn {
@@ -309,6 +325,13 @@ body.is-ar-open {
 }
 
 .ar-hud p {
-  margin: 0;
-  flex: 1 1 200px;
+  margin: 0 0 0.35rem;
+}
+
+.ar-hud-hint {
+  margin: 0 !important;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.45;
+  max-width: 52ch;
 }
