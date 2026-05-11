@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="معاينة تصميم المباني — نمذجة ثلاثية الأبعاد سريعة" />
+    <title>بروبيلد — مولّد معاينة المباني</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Tajawal:wght@700&family=Amiri:wght@700&family=Changa:wght@600&family=El+Messiri:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ar.js@2.2.2/aframe/build/aframe-ar.min.js"></script>
+  </head>
+  <body>
+    <div id="app-landing" class="landing" aria-hidden="false">
+      <header class="site-header">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <strong>بروبيلد</strong>
+            <span class="tagline">ذكاء معماري لمعاينة المشاريع</span>
+          </div>
+        </div>
+        <nav class="nav-fake">
+          <span>المشاريع</span>
+          <span>الأسعار</span>
+          <span>اتصل بنا</span>
+        </nav>
+      </header>
+
+      <main class="shell">
+        <section class="hero">
+          <h1>أدخل بيانات العقار لتوليد معاينة المبنى فورًا</h1>
+          <p class="lede">
+            نستخدم نماذج هندسية مبسّطة لإخراج واجهة خارجية مقترحة خلال ثوانٍ. يُفضّل إكمال
+            جميع الحقول لضبط دقة التوليد.
+          </p>
+        </section>
+
+        <form id="decoy-form" class="card form-grid" novalidate>
+          <h2 class="card-title">بيانات المبنى</h2>
+
+          <label class="field">
+            <span>عنوان العقار</span>
+            <input type="text" name="address" required placeholder="الحي، الشارع، المدينة" autocomplete="street-address" />
+          </label>
+
+          <label class="field">
+            <span>عدد الطوابق</span>
+            <input type="number" name="floors" min="1" max="200" required placeholder="مثال: 12" />
+          </label>
+
+          <label class="field">
+            <span>المساحة الإجمالية (م²)</span>
+            <input type="number" name="area" min="10" required placeholder="مثال: 2400" />
+          </label>
+
+          <label class="field">
+            <span>نوع الاستخدام</span>
+            <select name="usage" required>
+              <option value="" disabled selected>اختر النوع</option>
+              <option value="residential">سكني</option>
+              <option value="commercial">تجاري</option>
+              <option value="mixed">مختلط</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>سنة التسليم المتوقعة</span>
+            <input type="number" name="year" min="2000" max="2100" required placeholder="2027" />
+          </label>
+
+          <div class="field span-2 subtle-box">
+            <h3 class="subsection-title">إعدادات العرض المعماري</h3>
+            <p class="hint">
+              تُستخدم لضبط ألوان الواجهة الافتراضية ونمط تسميات الواجهات في المخرجات ثلاثية
+              الأبعاد.
+            </p>
+            <div class="inline-row">
+              <label class="field compact">
+                <span>لون الواجهة الافتراضي</span>
+                <input type="color" id="accent-color" name="accent" value="#1a5f4a" />
+              </label>
+              <label class="field compact grow">
+                <span>خط تسميات الواجهة</span>
+                <select id="arabic-font" name="fontStyle" required>
+                  <option value="Cairo" data-generic="sans-serif">Cairo — حديث وواضح</option>
+                  <option value="Tajawal" data-generic="sans-serif">Tajawal — متوازن</option>
+                  <option value="Amiri" data-generic="serif">Amiri — كلاسيكي أنيق</option>
+                  <option value="Changa" data-generic="sans-serif">Changa — عريض</option>
+                  <option value="El Messiri" data-generic="sans-serif">El Messiri — فخم</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+
+          <div class="actions span-2">
+            <button type="submit" class="btn primary">توليد المعاينة ثلاثية الأبعاد</button>
+            <p class="fine-print">
+              بياناتك تُعالج محليًا في هذا المتصفح لإنشاء المعاينة فقط. لا يوجد رفع إلى
+              خادم في هذا النموذج التجريبي.
+            </p>
+          </div>
+        </form>
+      </main>
+
+      <footer class="site-footer">
+        <span>© بروبيلد — نموذج تجريبي للعرض</span>
+      </footer>
+    </div>
+
+    <div id="ar-stage" class="ar-stage" hidden aria-hidden="true">
+      <div class="ar-hud">
+        <p>وجّه الكاميرا نحو <strong>علامة Hiro</strong> حتى تثبت المعاينة.</p>
+        <button type="button" id="btn-back" class="btn ghost">العودة للنموذج</button>
+      </div>
+      <a-scene
+        embedded
+        vr-mode-ui="enabled: false"
+        renderer="logarithmicDepthBuffer: true"
+        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+      >
+        <a-marker id="hiro-marker" preset="hiro">
+          <a-entity id="text-holder" position="0 0.15 0">
+            <a-plane
+              id="message-plane"
+              width="1.6"
+              height="0.45"
+              material="transparent: true; shader: flat"
+              position="0 0 0"
+            ></a-plane>
+          </a-entity>
+        </a-marker>
+        <a-entity camera></a-entity>
+      </a-scene>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
