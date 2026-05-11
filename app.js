@@ -102,12 +102,16 @@
 
   function resizeScene(scene) {
     if (!scene) return;
-    window.setTimeout(function () {
+    function tick() {
       if (typeof scene.resize === "function") {
         scene.resize();
       }
       window.dispatchEvent(new Event("resize"));
-    }, 50);
+    }
+    tick();
+    window.setTimeout(tick, 100);
+    window.setTimeout(tick, 400);
+    window.setTimeout(tick, 1000);
   }
 
   async function enterAr() {

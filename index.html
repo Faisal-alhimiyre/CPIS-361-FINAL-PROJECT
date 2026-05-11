@@ -116,7 +116,8 @@
       </footer>
     </div>
 
-    <div id="ar-stage" class="ar-stage" hidden aria-hidden="true">
+    <!-- LTR: global RTL can confuse embedded WebGL/canvas sizing in some browsers. -->
+    <div id="ar-stage" class="ar-stage" hidden aria-hidden="true" dir="ltr">
       <div class="ar-hud">
         <p>وجّه الكاميرا نحو <strong>علامة Hiro</strong> حتى تثبت المعاينة.</p>
         <button type="button" id="btn-back" class="btn ghost">العودة للنموذج</button>
@@ -129,8 +130,8 @@
       <a-scene
         embedded
         vr-mode-ui="enabled: false"
-        renderer="logarithmicDepthBuffer: true"
-        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; detectionMode: mono; labelingMode: black_region;"
+        renderer="alpha: true; antialias: true; preserveDrawingBuffer: false"
+        arjs="trackingMethod: best; sourceType: webcam; videoTexture: true; debugUIEnabled: false; detectionMode: mono; labelingMode: black_region;"
       >
         <a-marker id="hiro-marker" preset="hiro">
           <a-entity id="text-holder" position="0 0.15 0">
