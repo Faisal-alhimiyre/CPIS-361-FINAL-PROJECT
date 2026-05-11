@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Full-page AR only: matches AR.js README (no iframe, no SPA). Form lives in index.html. -->
+<!-- Full-page AR. videoTexture:true triggers changeMatrixMode crash in this AR.js build; use false + transparent GL clear so the DOM <video> shows through. -->
 <html lang="ar" dir="ltr">
   <head>
     <meta charset="utf-8" />
@@ -37,28 +37,60 @@
       #ar-back:hover {
         background: rgba(255, 255, 255, 0.12);
       }
+      #host {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #host a-scene {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      #host video {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        pointer-events: none;
+      }
+      #host a-scene .a-canvas {
+        display: block;
+        position: relative;
+        z-index: 1;
+        width: 100% !important;
+        height: 100% !important;
+      }
     </style>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.8/aframe/build/aframe-ar.min.js"></script>
   </head>
   <body>
     <a id="ar-back" href="index.html">← العودة للنموذج</a>
-    <!-- Non-embedded + videoTexture: same pattern as AR.js marker demos; avoids black canvas in tiny iframes. -->
-    <a-scene
-      vr-mode-ui="enabled: false"
-      arjs="trackingMethod: best; sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
-    >
-      <a-marker preset="hiro" emitevents="true">
-        <a-plane
-          id="message-plane"
-          width="1.2"
-          height="0.35"
-          position="0 0.1 0"
-          material="shader: flat; transparent: true; side: double"
-        ></a-plane>
-      </a-marker>
-      <a-entity camera></a-entity>
-    </a-scene>
+    <div id="host">
+      <a-scene
+        embedded
+        vr-mode-ui="enabled: false"
+        renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true"
+        background="transparent: true"
+        arjs="trackingMethod: best; sourceType: webcam; videoTexture: false; debugUIEnabled: false;"
+      >
+        <a-marker preset="hiro" emitevents="true">
+          <a-plane
+            id="message-plane"
+            width="1.2"
+            height="0.35"
+            position="0 0.1 0"
+            material="shader: flat; transparent: true; side: double"
+          ></a-plane>
+        </a-marker>
+        <a-entity camera></a-entity>
+      </a-scene>
+    </div>
     <script>
       (function () {
         var MESSAGE = "احبك اكثر";
@@ -68,6 +100,8 @@
           font: params.get("font") || "Cairo",
           gen: params.get("gen") || "sans-serif",
         };
+
+        var sceneEl = document.querySelector("a-scene");
 
         function hexColor() {
           return state.c.charAt(0) === "#" ? state.c : "#" + state.c;
@@ -108,6 +142,21 @@
           });
         }
 
+        function fixCameraComposite() {
+          if (sceneEl && sceneEl.renderer) {
+            sceneEl.renderer.setClearColor(0x000000, 0);
+          }
+          var v = document.querySelector("#host video");
+          if (v) {
+            v.style.display = "block";
+            v.style.visibility = "visible";
+            v.style.opacity = "1";
+          }
+          if (sceneEl && typeof sceneEl.resize === "function") {
+            sceneEl.resize();
+          }
+        }
+
         function initTextures() {
           var run = function () {
             apply();
@@ -127,7 +176,15 @@
           }
         }
 
-        document.querySelector("a-scene").addEventListener("loaded", initTextures);
+        sceneEl.addEventListener("loaded", function () {
+          initTextures();
+          fixCameraComposite();
+          requestAnimationFrame(fixCameraComposite);
+          setTimeout(fixCameraComposite, 80);
+          setTimeout(fixCameraComposite, 400);
+        });
+
+        window.addEventListener("resize", fixCameraComposite);
       })();
     </script>
   </body>
