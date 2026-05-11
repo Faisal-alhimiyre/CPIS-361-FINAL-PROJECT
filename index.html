@@ -133,31 +133,6 @@
       </div>
     </div>
 
-    <!-- Scene is mounted only after submit so WebRTC sees a visible, sized surface (hidden = display:none breaks the camera). -->
-    <template id="ar-scene-template">
-      <a-scene
-        embedded
-        vr-mode-ui="enabled: false"
-        renderer="alpha: true; premultipliedAlpha: false; antialias: true; logarithmicDepthBuffer: true"
-        background="transparent: true"
-        arjs="trackingMethod: best; sourceType: webcam; videoTexture: false; debugUIEnabled: false;"
-      >
-        <a-marker id="hiro-marker" preset="hiro" emitevents="true">
-          <a-entity id="text-holder" position="0 0.12 0">
-            <a-plane
-              id="message-plane"
-              class="message-plane"
-              width="1.2"
-              height="0.35"
-              position="0 0 0"
-              material="shader: flat; transparent: true; side: double; opacity: 1"
-            ></a-plane>
-          </a-entity>
-        </a-marker>
-        <a-entity camera></a-entity>
-      </a-scene>
-    </template>
-
     <script src="app.js"></script>
   </body>
 </html>

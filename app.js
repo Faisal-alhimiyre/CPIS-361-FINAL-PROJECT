@@ -1,10 +1,7 @@
 (function () {
-  const MESSAGE = "احبك اكثر";
-
   const landing = document.getElementById("app-landing");
   const arStage = document.getElementById("ar-stage");
   const arSceneRoot = document.getElementById("ar-scene-root");
-  const arSceneTemplate = document.getElementById("ar-scene-template");
   const form = document.getElementById("decoy-form");
   const formError = document.getElementById("form-error");
   const colorInput = document.getElementById("accent-color");
@@ -25,45 +22,34 @@
     }
   }
 
-  function syncArDimensions(scene) {
+  function syncArRootDimensions() {
     const w = window.innerWidth;
     const h = window.innerHeight;
     if (arSceneRoot) {
       arSceneRoot.style.width = w + "px";
       arSceneRoot.style.height = h + "px";
     }
-    if (scene) {
-      scene.style.width = w + "px";
-      scene.style.height = h + "px";
-    }
   }
 
-  /** With videoTexture:false the feed is a DOM <video> behind the canvas; Three must clear with alpha 0 or you only see black. */
-  function forceTransparentWebGLClear(scene) {
-    if (!scene || !scene.renderer) {
-      return;
-    }
-    const r = scene.renderer;
-    r.setClearColor(0x000000, 0);
+  function arIframe() {
+    return arSceneRoot && arSceneRoot.querySelector("iframe.ar-iframe");
   }
 
-  function nudgeArVideo() {
-    if (!arSceneRoot) {
-      return;
-    }
-    const v = arSceneRoot.querySelector("video");
-    if (!v) {
-      return;
-    }
-    v.setAttribute("playsinline", "");
-    v.setAttribute("webkit-playsinline", "");
-    v.style.display = "block";
-    v.style.visibility = "visible";
-    v.style.opacity = "1";
-  }
-
-  function getMessagePlane() {
-    return document.getElementById("message-plane");
+  function postUpdateToArIframe() {
+    if (arStage.hidden) return;
+    const iframe = arIframe();
+    if (!iframe || !iframe.contentWindow) return;
+    const opt = fontSelect.selectedOptions[0];
+    const gen = (opt && opt.dataset && opt.dataset.generic) || "sans-serif";
+    iframe.contentWindow.postMessage(
+      {
+        type: "propbuild-update",
+        color: colorInput.value,
+        font: fontSelect.value,
+        gen: gen,
+      },
+      "*"
+    );
   }
 
   function showError(text) {
@@ -76,145 +62,50 @@
     formError.textContent = "";
   }
 
-  function getFontStack() {
-    const opt = fontSelect.selectedOptions[0];
-    const family = fontSelect.value;
-    const generic = (opt && opt.dataset && opt.dataset.generic) || "sans-serif";
-    return '"' + family + '", ' + generic;
-  }
-
-  function buildTextTexture(hexColor, fontStack) {
-    const w = 2048;
-    const h = 512;
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-
-    ctx.fillStyle = "rgba(0,0,0,0.45)";
-    ctx.fillRect(0, 0, w, h);
-
-    ctx.direction = "rtl";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = hexColor;
-    ctx.font = "bold 140px " + fontStack;
-    ctx.shadowColor = "rgba(0,0,0,0.55)";
-    ctx.shadowBlur = 18;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 6;
-
-    ctx.fillText(MESSAGE, w / 2, h / 2 + 8);
-
-    return canvas.toDataURL("image/png");
-  }
-
-  function applyPlaneTexture(dataUrl) {
-    const plane = getMessagePlane();
-    if (!plane) return;
-    plane.setAttribute("material", {
-      src: dataUrl,
-      transparent: true,
-      shader: "flat",
-      side: "double",
-    });
-  }
-
-  function scheduleTextureApply(dataUrl, scene) {
-    function apply() {
-      applyPlaneTexture(dataUrl);
-    }
-    apply();
-    window.requestAnimationFrame(apply);
-    window.setTimeout(apply, 80);
-    window.setTimeout(apply, 400);
-    if (scene) {
-      scene.addEventListener(
-        "renderstart",
-        function () {
-          forceTransparentWebGLClear(scene);
-          nudgeArVideo();
-          apply();
-        },
-        { once: true }
-      );
-    }
-  }
-
   async function ensureFontsLoaded() {
     if (!document.fonts || !document.fonts.ready) {
       return;
     }
     await document.fonts.ready;
+    const opt = fontSelect.selectedOptions[0];
+    const family = fontSelect.value;
+    const generic = (opt && opt.dataset && opt.dataset.generic) || "sans-serif";
     try {
-      await document.fonts.load("700 48px " + getFontStack());
-    } catch (_) {
-      /* ignore if Font Loading API rejects */
-    }
+      await document.fonts.load('700 48px "' + family + '", ' + generic);
+    } catch (_) {}
   }
 
-  function mountArScene(onReady) {
-    if (!arSceneRoot || !arSceneTemplate) {
-      return;
-    }
+  function buildArViewUrl() {
+    const base = new URL("ar-view.html", window.location.href).href;
+    const opt = fontSelect.selectedOptions[0];
+    const gen = (opt && opt.dataset && opt.dataset.generic) || "sans-serif";
+    const c = colorInput.value.replace(/^#/, "");
+    const q = new URLSearchParams({
+      c: c,
+      font: fontSelect.value,
+      gen: gen,
+    });
+    return base + "?" + q.toString();
+  }
+
+  function mountArIframe() {
+    if (!arSceneRoot) return;
     arSceneRoot.innerHTML = "";
-    arSceneRoot.appendChild(arSceneTemplate.content.cloneNode(true));
-    const scene = arSceneRoot.querySelector("a-scene");
-    if (!scene) {
-      return;
-    }
-    function finish() {
-      syncArDimensions(scene);
-      forceTransparentWebGLClear(scene);
-      nudgeArVideo();
-      window.setTimeout(function () {
-        forceTransparentWebGLClear(scene);
-        nudgeArVideo();
-      }, 0);
-      window.setTimeout(function () {
-        forceTransparentWebGLClear(scene);
-        nudgeArVideo();
-      }, 250);
-      onReady(scene);
-    }
-    if (scene.hasLoaded) {
-      finish();
-      return;
-    }
-    scene.addEventListener("loaded", finish, { once: true });
-  }
-
-  function resizeScene(scene) {
-    if (!scene) return;
-    function tick() {
-      syncArDimensions(scene);
-      forceTransparentWebGLClear(scene);
-      nudgeArVideo();
-      if (typeof scene.resize === "function") {
-        scene.resize();
-      }
-      /* Do not dispatch window "resize" here: we listen on window.resize and would recurse until stack overflow. */
-    }
-    tick();
-    window.setTimeout(tick, 100);
-    window.setTimeout(tick, 400);
-    window.setTimeout(tick, 1000);
-  }
-
-  function resizeSceneImmediate(scene) {
-    if (!scene) return;
-    syncArDimensions(scene);
-    forceTransparentWebGLClear(scene);
-    nudgeArVideo();
-    if (typeof scene.resize === "function") {
-      scene.resize();
-    }
+    const iframe = document.createElement("iframe");
+    iframe.className = "ar-iframe";
+    iframe.setAttribute("title", "معاينة AR");
+    iframe.setAttribute("allow", "camera; microphone");
+    iframe.setAttribute("loading", "eager");
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    iframe.addEventListener("load", function () {
+      syncArRootDimensions();
+    });
+    iframe.src = buildArViewUrl();
+    arSceneRoot.appendChild(iframe);
   }
 
   async function enterAr() {
-    const color = colorInput.value;
     await ensureFontsLoaded();
-    const dataUrl = buildTextTexture(color, getFontStack());
 
     landing.hidden = true;
     landing.setAttribute("aria-hidden", "true");
@@ -225,26 +116,26 @@
     if (!windowResizeHandler) {
       windowResizeHandler = function () {
         if (arStage.hidden) return;
-        const s = arSceneRoot && arSceneRoot.querySelector("a-scene");
-        if (s) {
-          resizeSceneImmediate(s);
-        }
+        syncArRootDimensions();
       };
       window.addEventListener("resize", windowResizeHandler);
     }
 
-    /* Let the stage leave display:none before AR.js measures the viewport and opens the camera. */
     window.requestAnimationFrame(function () {
       window.requestAnimationFrame(function () {
-        mountArScene(function (scene) {
-          resizeScene(scene);
-          scheduleTextureApply(dataUrl, scene);
-        });
+        mountArIframe();
+        syncArRootDimensions();
       });
     });
   }
 
   function exitAr() {
+    const iframe = arIframe();
+    if (iframe) {
+      try {
+        iframe.src = "about:blank";
+      } catch (_) {}
+    }
     if (arSceneRoot) {
       arSceneRoot.innerHTML = "";
       arSceneRoot.style.width = "";
@@ -285,14 +176,10 @@
   }
 
   colorInput.addEventListener("input", function () {
-    if (arStage.hidden) return;
-    applyPlaneTexture(buildTextTexture(colorInput.value, getFontStack()));
+    postUpdateToArIframe();
   });
 
   fontSelect.addEventListener("change", function () {
-    if (arStage.hidden) return;
-    void ensureFontsLoaded().then(function () {
-      applyPlaneTexture(buildTextTexture(colorInput.value, getFontStack()));
-    });
+    void ensureFontsLoaded().then(postUpdateToArIframe);
   });
 })();

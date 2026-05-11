@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>معاينة AR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&family=Tajawal:wght@700&family=Amiri:wght@700&family=Changa:wght@600&family=El+Messiri:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+      }
+      #host {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      a-scene {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.8/aframe/build/aframe-ar.min.js"></script>
+  </head>
+  <body>
+    <div id="host">
+      <!-- Minimal marker scene (same shape as AR.js docs): own document + full box avoids SPA/RTL/embedded bugs. -->
+      <a-scene embedded vr-mode-ui="enabled: false" arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
+        <a-marker preset="hiro" emitevents="true">
+          <a-plane
+            id="message-plane"
+            width="1.2"
+            height="0.35"
+            position="0 0.1 0"
+            material="shader: flat; transparent: true; side: double"
+          ></a-plane>
+        </a-marker>
+        <a-entity camera></a-entity>
+      </a-scene>
+    </div>
+    <script>
+      (function () {
+        var MESSAGE = "احبك اكثر";
+        var params = new URLSearchParams(location.search);
+        var state = {
+          c: (params.get("c") || "1a5f4a").replace(/^#/, ""),
+          font: params.get("font") || "Cairo",
+          gen: params.get("gen") || "sans-serif",
+        };
+
+        function hexColor() {
+          return state.c.charAt(0) === "#" ? state.c : "#" + state.c;
+        }
+
+        function fontStack() {
+          return '"' + state.font + '", ' + state.gen;
+        }
+
+        function buildTex() {
+          var w = 2048;
+          var h = 512;
+          var c = document.createElement("canvas");
+          c.width = w;
+          c.height = h;
+          var ctx = c.getContext("2d");
+          ctx.fillStyle = "rgba(0,0,0,0.45)";
+          ctx.fillRect(0, 0, w, h);
+          ctx.direction = "rtl";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = hexColor();
+          ctx.font = "bold 140px " + fontStack();
+          ctx.shadowColor = "rgba(0,0,0,0.55)";
+          ctx.shadowBlur = 18;
+          ctx.fillText(MESSAGE, w / 2, h / 2 + 8);
+          return c.toDataURL("image/png");
+        }
+
+        function apply() {
+          var plane = document.getElementById("message-plane");
+          if (!plane) return;
+          plane.setAttribute("material", {
+            src: buildTex(),
+            transparent: true,
+            shader: "flat",
+            side: "double",
+          });
+        }
+
+        function initTextures() {
+          var run = function () {
+            apply();
+            requestAnimationFrame(apply);
+            setTimeout(apply, 100);
+            setTimeout(apply, 400);
+          };
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready
+              .then(function () {
+                return document.fonts.load("700 48px " + fontStack());
+              })
+              .catch(function () {})
+              .then(run);
+          } else {
+            run();
+          }
+        }
+
+        document.querySelector("a-scene").addEventListener("loaded", initTextures);
+
+        window.addEventListener("message", function (ev) {
+          var d = ev.data;
+          if (!d || d.type !== "propbuild-update") return;
+          if (d.color) state.c = String(d.color).replace(/^#/, "");
+          if (d.font) state.font = d.font;
+          if (d.gen) state.gen = d.gen;
+          initTextures();
+        });
+      })();
+    </script>
+  </body>
+</html>
