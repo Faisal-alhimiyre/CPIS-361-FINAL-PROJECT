@@ -134,12 +134,20 @@
       if (typeof scene.resize === "function") {
         scene.resize();
       }
-      window.dispatchEvent(new Event("resize"));
+      /* Do not dispatch window "resize" here: we listen on window.resize and would recurse until stack overflow. */
     }
     tick();
     window.setTimeout(tick, 100);
     window.setTimeout(tick, 400);
     window.setTimeout(tick, 1000);
+  }
+
+  function resizeSceneImmediate(scene) {
+    if (!scene) return;
+    syncArDimensions(scene);
+    if (typeof scene.resize === "function") {
+      scene.resize();
+    }
   }
 
   async function enterAr() {
@@ -158,7 +166,7 @@
         if (arStage.hidden) return;
         const s = arSceneRoot && arSceneRoot.querySelector("a-scene");
         if (s) {
-          resizeScene(s);
+          resizeSceneImmediate(s);
         }
       };
       window.addEventListener("resize", windowResizeHandler);
