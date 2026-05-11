@@ -13,7 +13,8 @@
     />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ar.js@2.2.2/aframe/build/aframe-ar.min.js"></script>
+    <!-- npm package "ar.js" 2.x is incompatible with A-Frame 1.4 (arContext.addEventListener errors). Use AR-js-org build. -->
+    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.8/aframe/build/aframe-ar.min.js"></script>
   </head>
   <body>
     <div id="app-landing" class="landing" aria-hidden="false">
@@ -129,7 +130,7 @@
         embedded
         vr-mode-ui="enabled: false"
         renderer="logarithmicDepthBuffer: true"
-        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; detectionMode: mono; labelingMode: black_region;"
       >
         <a-marker id="hiro-marker" preset="hiro">
           <a-entity id="text-holder" position="0 0.15 0">
