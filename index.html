@@ -14,7 +14,8 @@
     <link rel="stylesheet" href="styles.css" />
     <!-- AR.js docs use A-Frame 1.6.x with marker examples; 1.4.x often leaves a black canvas while video still runs. -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.8/aframe/build/aframe-ar.min.js"></script>
+    <!-- npm 3.4.8 predates full A-Frame 1.6 / Three r164 fixes; pin upstream build so videoTexture works without changeMatrixMode crash. -->
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@147ccd4170bb153f64d7fd9858eaff1d3294990c/aframe/build/aframe-ar.min.js"></script>
   </head>
   <body>
     <div id="app-landing" class="landing" aria-hidden="false">
@@ -135,12 +136,11 @@
 
     <!-- Scene is mounted only after submit so WebRTC sees a visible, sized surface (hidden = display:none breaks the camera). -->
     <template id="ar-scene-template">
-      <!-- Avoid videoTexture:true with A-Frame 1.6: can crash reading changeMatrixMode (AR.js / Three r164). -->
       <a-scene
         embedded
         vr-mode-ui="enabled: false"
         renderer="alpha: true; antialias: true; colorManagement: false; logarithmicDepthBuffer: true; precision: medium"
-        arjs="trackingMethod: best; sourceType: webcam; videoTexture: false; debugUIEnabled: false;"
+        arjs="trackingMethod: best; sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
       >
         <a-marker id="hiro-marker" preset="hiro">
           <a-entity id="text-holder" position="0 0.15 0">
