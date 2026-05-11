@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Full-page AR. videoTexture:true triggers changeMatrixMode crash in this AR.js build; use false + transparent GL clear so the DOM <video> shows through. -->
 <html lang="ar" dir="ltr">
   <head>
     <meta charset="utf-8" />
@@ -66,8 +65,9 @@
         height: 100% !important;
       }
     </style>
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.8/aframe/build/aframe-ar.min.js"></script>
+    <!-- A-Frame 1.3 + Three 137 still hits changeMatrixMode in AR.js 3.4.8; 1.2 + AR 3.4.2 is a known-stable band. -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.2/aframe/build/aframe-ar.min.js"></script>
   </head>
   <body>
     <a id="ar-back" href="index.html">← العودة للنموذج</a>
@@ -75,11 +75,16 @@
       <a-scene
         embedded
         vr-mode-ui="enabled: false"
-        renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true"
+        renderer="alpha: true; antialias: true"
         background="transparent: true"
-        arjs="trackingMethod: best; sourceType: webcam; videoTexture: false; debugUIEnabled: false;"
+        arjs="trackingMethod: best; sourceType: webcam; videoTexture: false; detectionMode: mono; debugUIEnabled: false;"
       >
-        <a-marker preset="hiro" emitevents="true">
+        <!-- Explicit Hiro pattern avoids rare preset loading issues (AR.js issue #43). -->
+        <a-marker
+          type="pattern"
+          url="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.8/data/data/patt.hiro"
+          emitevents="true"
+        >
           <a-plane
             id="message-plane"
             width="1.2"
