@@ -8,6 +8,7 @@
   const fontSelect = document.getElementById("arabic-font");
   const btnBack = document.getElementById("btn-back");
   const btnReloadAr = document.getElementById("btn-reload-ar");
+  const btnArTab = document.getElementById("btn-ar-tab");
 
   let windowResizeHandler = null;
 
@@ -75,8 +76,24 @@
     } catch (_) {}
   }
 
+  /**
+   * GitHub Pages URLs often omit a trailing slash. `new URL('ar-view.html', 'https://host/repo')`
+   * resolves to `https://host/ar-view.html` (wrong). Always resolve under the folder that contains index.html.
+   */
+  function arViewDirectoryUrl() {
+    let path = window.location.pathname || "/";
+    if (/\.html?$/i.test(path)) {
+      path = path.slice(0, path.lastIndexOf("/") + 1);
+    } else if (!path.endsWith("/")) {
+      path = path + "/";
+    }
+    if (!path.endsWith("/")) {
+      path = path + "/";
+    }
+    return window.location.origin + path;
+  }
+
   function buildArViewUrl() {
-    const base = new URL("ar-view.html", window.location.href).href;
     const opt = fontSelect.selectedOptions[0];
     const gen = (opt && opt.dataset && opt.dataset.generic) || "sans-serif";
     const c = colorInput.value.replace(/^#/, "");
@@ -85,7 +102,7 @@
       font: fontSelect.value,
       gen: gen,
     });
-    return base + "?" + q.toString();
+    return arViewDirectoryUrl() + "ar-view.html?" + q.toString();
   }
 
   function mountArIframe() {
@@ -123,6 +140,7 @@
 
     window.requestAnimationFrame(function () {
       window.requestAnimationFrame(function () {
+        syncArRootDimensions();
         mountArIframe();
         syncArRootDimensions();
       });
@@ -172,6 +190,13 @@
   if (btnReloadAr) {
     btnReloadAr.addEventListener("click", function () {
       window.location.reload();
+    });
+  }
+
+  if (btnArTab) {
+    btnArTab.addEventListener("click", function () {
+      var url = buildArViewUrl();
+      window.open(url, "_blank", "noopener,noreferrer");
     });
   }
 

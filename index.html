@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=(self)" />
     <meta name="description" content="معاينة تصميم المباني — نمذجة ثلاثية الأبعاد سريعة" />
     <title>بروبيلد — مولّد معاينة المباني</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,9 +13,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
-    <!-- Marker AR: A-Frame 1.6 + videoTexture hits changeMatrixMode bugs; 1.3.0 + AR.js 3.4.8 is the stable marker combo. -->
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.8/aframe/build/aframe-ar.min.js"></script>
+    <!-- AR runs only inside ar-view.html (iframe). Do not load A-Frame here — wrong iframe URL was loading 404 while console showed parent libs. -->
   </head>
   <body>
     <div id="app-landing" class="landing" aria-hidden="false">
@@ -123,10 +122,12 @@
         <div class="ar-hud-copy">
           <p>وجّه الكاميرا نحو <strong>علامة Hiro</strong> حتى تثبت المعاينة.</p>
           <p class="ar-hud-hint">
-            إذا رأيت شريط «أعد تحميل الصفحة» في كروم بعد السماح بالكاميرا، اضغطه أو استخدم «تحديث الصفحة» هنا.
+            إذا رأيت شريط «أعد تحميل الصفحة» في كروم بعد السماح بالكاميرا، اضغطه أو استخدم «تحديث الصفحة» هنا. إذا بقي
+            الشاشة سوداء، جرّب «فتح في تبويب جديد».
           </p>
         </div>
         <div class="ar-hud-actions">
+          <button type="button" id="btn-ar-tab" class="btn ghost">فتح في تبويب جديد</button>
           <button type="button" id="btn-reload-ar" class="btn ghost">تحديث الصفحة</button>
           <button type="button" id="btn-back" class="btn ghost">العودة للنموذج</button>
         </div>
