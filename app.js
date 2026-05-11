@@ -38,6 +38,30 @@
     }
   }
 
+  /** With videoTexture:false the feed is a DOM <video> behind the canvas; Three must clear with alpha 0 or you only see black. */
+  function forceTransparentWebGLClear(scene) {
+    if (!scene || !scene.renderer) {
+      return;
+    }
+    const r = scene.renderer;
+    r.setClearColor(0x000000, 0);
+  }
+
+  function nudgeArVideo() {
+    if (!arSceneRoot) {
+      return;
+    }
+    const v = arSceneRoot.querySelector("video");
+    if (!v) {
+      return;
+    }
+    v.setAttribute("playsinline", "");
+    v.setAttribute("webkit-playsinline", "");
+    v.style.display = "block";
+    v.style.visibility = "visible";
+    v.style.opacity = "1";
+  }
+
   function getMessagePlane() {
     return document.getElementById("message-plane");
   }
@@ -105,7 +129,15 @@
     window.setTimeout(apply, 80);
     window.setTimeout(apply, 400);
     if (scene) {
-      scene.addEventListener("renderstart", apply, { once: true });
+      scene.addEventListener(
+        "renderstart",
+        function () {
+          forceTransparentWebGLClear(scene);
+          nudgeArVideo();
+          apply();
+        },
+        { once: true }
+      );
     }
   }
 
@@ -133,6 +165,16 @@
     }
     function finish() {
       syncArDimensions(scene);
+      forceTransparentWebGLClear(scene);
+      nudgeArVideo();
+      window.setTimeout(function () {
+        forceTransparentWebGLClear(scene);
+        nudgeArVideo();
+      }, 0);
+      window.setTimeout(function () {
+        forceTransparentWebGLClear(scene);
+        nudgeArVideo();
+      }, 250);
       onReady(scene);
     }
     if (scene.hasLoaded) {
@@ -146,6 +188,8 @@
     if (!scene) return;
     function tick() {
       syncArDimensions(scene);
+      forceTransparentWebGLClear(scene);
+      nudgeArVideo();
       if (typeof scene.resize === "function") {
         scene.resize();
       }
@@ -160,6 +204,8 @@
   function resizeSceneImmediate(scene) {
     if (!scene) return;
     syncArDimensions(scene);
+    forceTransparentWebGLClear(scene);
+    nudgeArVideo();
     if (typeof scene.resize === "function") {
       scene.resize();
     }
