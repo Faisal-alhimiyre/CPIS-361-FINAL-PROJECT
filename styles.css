@@ -27,6 +27,14 @@ body {
   color: var(--text);
 }
 
+/* Prevents horizontal scroll / wrong canvas size while AR is open (RTL pages often overflow 100vw). */
+html.is-ar-open,
+body.is-ar-open {
+  overflow: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
 .landing {
   min-height: 100vh;
   display: flex;
@@ -252,15 +260,16 @@ body {
   inset: 0;
   z-index: 50;
   background: #000;
-  display: flex;
-  flex-direction: column;
+  overflow: hidden;
+  max-width: 100vw;
 }
 
 .ar-scene-root {
-  flex: 1 1 auto;
-  min-height: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
-  position: relative;
+  height: 100%;
 }
 
 .ar-scene-root a-scene {
@@ -270,9 +279,9 @@ body {
 }
 
 .ar-scene-root a-scene .a-canvas {
+  display: block;
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover;
 }
 
 .ar-hud {

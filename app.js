@@ -11,6 +11,32 @@
   const fontSelect = document.getElementById("arabic-font");
   const btnBack = document.getElementById("btn-back");
 
+  let windowResizeHandler = null;
+
+  function setArPageLock(on) {
+    const root = document.documentElement;
+    if (on) {
+      root.classList.add("is-ar-open");
+      document.body.classList.add("is-ar-open");
+    } else {
+      root.classList.remove("is-ar-open");
+      document.body.classList.remove("is-ar-open");
+    }
+  }
+
+  function syncArDimensions(scene) {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    if (arSceneRoot) {
+      arSceneRoot.style.width = w + "px";
+      arSceneRoot.style.height = h + "px";
+    }
+    if (scene) {
+      scene.style.width = w + "px";
+      scene.style.height = h + "px";
+    }
+  }
+
   function getMessagePlane() {
     return document.getElementById("message-plane");
   }
@@ -91,6 +117,7 @@
       return;
     }
     function finish() {
+      syncArDimensions(scene);
       onReady(scene);
     }
     if (scene.hasLoaded) {
@@ -103,6 +130,7 @@
   function resizeScene(scene) {
     if (!scene) return;
     function tick() {
+      syncArDimensions(scene);
       if (typeof scene.resize === "function") {
         scene.resize();
       }
@@ -123,6 +151,18 @@
     landing.setAttribute("aria-hidden", "true");
     arStage.hidden = false;
     arStage.setAttribute("aria-hidden", "false");
+    setArPageLock(true);
+
+    if (!windowResizeHandler) {
+      windowResizeHandler = function () {
+        if (arStage.hidden) return;
+        const s = arSceneRoot && arSceneRoot.querySelector("a-scene");
+        if (s) {
+          resizeScene(s);
+        }
+      };
+      window.addEventListener("resize", windowResizeHandler);
+    }
 
     /* Let the stage leave display:none before AR.js measures the viewport and opens the camera. */
     window.requestAnimationFrame(function () {
@@ -138,7 +178,14 @@
   function exitAr() {
     if (arSceneRoot) {
       arSceneRoot.innerHTML = "";
+      arSceneRoot.style.width = "";
+      arSceneRoot.style.height = "";
     }
+    if (windowResizeHandler) {
+      window.removeEventListener("resize", windowResizeHandler);
+      windowResizeHandler = null;
+    }
+    setArPageLock(false);
     arStage.hidden = true;
     arStage.setAttribute("aria-hidden", "true");
     landing.hidden = false;
